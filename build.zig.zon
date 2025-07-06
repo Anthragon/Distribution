@@ -1,0 +1,25 @@
+.{
+    .name = .SystemElva_Operating_System,
+    .version = "0.0.0",
+
+    .fingerprint = 0x26ea691ab084bfba,
+    .minimum_zig_version = "0.14.0",
+
+    .dependencies = .{
+        .kernel = .{ .path = "kernel" }
+    },
+
+    .paths = .{
+        "kernel",
+        "modules",
+        "dependencies",
+
+        "build.zig",
+        "build.zig.zon",
+        "afterrun.sh",
+
+        "LICENSE",
+         "README.md",
+        ".gitignore",
+    },
+}

@@ -1,0 +1,7 @@
+[submodule "kernel"]
+	path = kernel
+	url = git@github.com:SystemElva/Kernel.git
+	
+[submodule "dependencies/image-builder"]
+	path = dependencies/image-builder
+	url = git@github.com:lumi2021/image-builder.git
