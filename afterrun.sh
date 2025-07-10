@@ -18,7 +18,7 @@ while IFS= read -r line; do
     elif [[ "$line" == "<===addr===/>" ]]; then
         in_section=false
         while IFS= read -r addr; do
-            location="$addr: $(addr2line -e "$BIN" "0x$addr")"
+            location="$addr: $(addr2line -e "$BIN" -f -C -i "0x$addr")"
             echo "$location" >> "$TMP_FILE"
         done < "$TMP_ADDRS"
         continue
