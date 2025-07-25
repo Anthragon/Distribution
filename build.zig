@@ -39,6 +39,10 @@ pub fn build(b: *std.Build) void {
     const target_bios = b.option(BiosMode, "biosMode", "BIOS or UEFI (Default is BIOS)") orelse .bios;
     const disk_layout_temp = b.option(DiskLayout, "diskLayout", "Desired disk layout");
 
+    // qemu options
+    const memory = b.option([]const u8, "memory", "How much memory the machine has") orelse "512M";
+    const use_gdb = b.option(bool, "useGDB", "use GDB for debugging") orelse false;
+
     if (target_bios == .uefi and disk_layout_temp == .MBR) @panic("MBR disk layout is not compatible with UEFI!");
 
     const arch: Arch = switch (target_arch) {
@@ -151,7 +155,7 @@ pub fn build(b: *std.Build) void {
     }
 
     // general options
-    qemu_args.appendSlice(&.{"-m", "2G"}) catch @panic("OOM");
+    qemu_args.appendSlice(&.{"-m", memory}) catch @panic("OOM");
 
     qemu_args.appendSlice(&.{"-serial", "file:zig-out/stdout.txt"}) catch @panic("OOM");
     qemu_args.appendSlice(&.{"-serial", "file:zig-out/stderr.txt"}) catch @panic("OOM");
@@ -164,7 +168,7 @@ pub fn build(b: *std.Build) void {
     qemu_args.appendSlice(&.{"--no-reboot"}) catch @panic("OOM");
     qemu_args.appendSlice(&.{"--no-shutdown"}) catch @panic("OOM");
     //qemu_args.appendSlice(&.{"-trace", "*xhci*"}) catch @panic("OOM");
-    //qemu_args.appendSlice(&.{"-s", "-S"}) catch @panic("OOM");
+    if (use_gdb) qemu_args.appendSlice(&.{"-s", "-S"}) catch @panic("OOM");
 
     qemu_args.appendSlice(&.{"-qmp", "unix:qmp.socket,server,nowait"}) catch @panic("OOM");
 
