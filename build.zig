@@ -66,16 +66,16 @@ pub fn build(b: *std.Build) void {
     const install_disk = addDummyStep(b, "Install Disk Image");
     var disk_step: *Build.Step = undefined;
 
-
+    // TODO put these in option flags
     const disk_boot_size = 5*MiB;
     const disk_main_size = 5*MiB;
     
     switch (disk_layout) {
 
         .MBR => {
-            const disk_total_size = disk_boot_size + disk_main_size + 64;
+            const disk_total_size = disk_boot_size + disk_main_size + 65;
             var disk = imageBuilder.addBuildDiskImage(b, .MBR, disk_total_size, "SystemElva.img");
-            disk.addGap(63); // limine bios-install needs this gap in MBR
+            disk.addGap(64); // limine bios-install needs this gap in MBR
             disk.addPartition(.vFAT, "boot", "zig-out/disk/boot", disk_boot_size);
             disk.addPartition(.vFAT, "main", "zig-out/disk/main", disk_main_size);
 
@@ -99,9 +99,7 @@ pub fn build(b: *std.Build) void {
 
             const bios_install = b.addSystemCommand(&.{
                 if (builtin.os.tag == .windows) "limine.exe" else "limine",
-                "bios-install",
-                "zig-out/SystemElva.img",
-                "3"
+                "bios-install", "zig-out/SystemElva.img", "3"
             });
 
             bios_install.step.dependOn(&disk.step);
