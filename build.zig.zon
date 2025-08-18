@@ -1,8 +1,8 @@
 .{
-    .name = .SystemElva_Operating_System,
-    .version = "0.0.0",
+    .name = .Anthragon_Operating_System,
+    .version = "0.1.0",
 
-    .fingerprint = 0x26ea691ab084bfba,
+    .fingerprint = 0xe47de285f344f37b,
     .minimum_zig_version = "0.14.1",
 
     .dependencies = .{

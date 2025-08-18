@@ -1,11 +1,13 @@
 [submodule "kernel"]
 	path = kernel
-	url = git@github.com:SystemElva/Kernel.git
+	url = git@github.com:Anthragon/Kernel.git
 	
+[submodule "modules"]
+	path = modules
+	url = git@github.com:Anthragon/Modules.git
+
+
 [submodule "dependencies/image-builder"]
 	path = dependencies/image-builder
 	url = git@github.com:lumi2021/image-builder.git
-
-[submodule "modules"]
-	path = modules
-	url = git@github.com:SystemElva/Modules.git
+	

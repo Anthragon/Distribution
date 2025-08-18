@@ -1,4 +1,4 @@
-# SystemElva Operating System Distribution
+# Systemlumi Operating System Distribution
 
 
 ## Dependences:

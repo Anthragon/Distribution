@@ -74,7 +74,7 @@ pub fn build(b: *std.Build) void {
 
         .MBR => {
             const disk_total_size = disk_boot_size + disk_main_size + 65;
-            var disk = imageBuilder.addBuildDiskImage(b, .MBR, disk_total_size, "SystemElva.img");
+            var disk = imageBuilder.addBuildDiskImage(b, .MBR, disk_total_size, "Anthragon.img");
             disk.addGap(64); // limine bios-install needs this gap in MBR
             disk.addPartition(.vFAT, "boot", "zig-out/disk/boot", disk_boot_size);
             disk.addPartition(.vFAT, "main", "zig-out/disk/main", disk_main_size);
@@ -82,7 +82,7 @@ pub fn build(b: *std.Build) void {
             const bios_install = b.addSystemCommand(&.{
                 if (builtin.os.tag == .windows) "limine.exe" else "limine",
                 "bios-install",
-                "zig-out/SystemElva.img"
+                "zig-out/Anthragon.img"
             });
 
             bios_install.step.dependOn(&disk.step);
@@ -92,14 +92,14 @@ pub fn build(b: *std.Build) void {
 
         .GPT => {
             const total_size = disk_boot_size + disk_main_size + GPTr + 64;
-            var disk = imageBuilder.addBuildDiskImage(b, .GPT, total_size, "SystemElva.img");
+            var disk = imageBuilder.addBuildDiskImage(b, .GPT, total_size, "Anthragon.img");
             disk.addPartition(.vFAT, "boot", "zig-out/disk/boot", disk_boot_size);
             disk.addPartition(.vFAT, "main", "zig-out/disk/main", disk_main_size);
             disk.addPartition(.empty, "limine", "", 64);
 
             const bios_install = b.addSystemCommand(&.{
                 if (builtin.os.tag == .windows) "limine.exe" else "limine",
-                "bios-install", "zig-out/SystemElva.img", "3"
+                "bios-install", "zig-out/Anthragon.img", "3"
             });
 
             bios_install.step.dependOn(&disk.step);
@@ -126,7 +126,7 @@ pub fn build(b: *std.Build) void {
             qemu_args.appendSlice(&.{"-machine", "virt"}) catch @panic("OOM");
 
             qemu_args.appendSlice(&.{"-device", "virtio-blk-device,drive=hd0,id=blk1"}) catch @panic("OOM");
-            qemu_args.appendSlice(&.{"-drive", "id=hd0,file=zig-out/SystemElva.img,format=raw,if=none"}) catch @panic("OOM");
+            qemu_args.appendSlice(&.{"-drive", "id=hd0,file=zig-out/Anthragon.img,format=raw,if=none"}) catch @panic("OOM");
 
             // for UEFI emulation
             if (target_bios == .uefi) qemu_args.appendSlice(&.{"-bios", "dependencies/debug/aarch64_OVMF.fd"}) catch @panic("OOM");
@@ -145,10 +145,10 @@ pub fn build(b: *std.Build) void {
 
             qemu_args.appendSlice(&.{"-device", "ahci,id=ahci"}) catch @panic("OOM");
             qemu_args.appendSlice(&.{"-device", "ide-hd,drive=drive0,bus=ahci.0"}) catch @panic("OOM");
-            qemu_args.appendSlice(&.{"-drive", "id=drive0,file=zig-out/SystemElva.img,format=raw,if=none"}) catch @panic("OOM");
+            qemu_args.appendSlice(&.{"-drive", "id=drive0,file=zig-out/Anthragon.img,format=raw,if=none"}) catch @panic("OOM");
 
             // for UEFI emulation
-           if (target_bios == .uefi)  qemu_args.appendSlice(&.{"-bios", "dependencies/debug/x86_64_OVMF.fd"}) catch @panic("OOM");
+           if (target_bios == .uefi) qemu_args.appendSlice(&.{"-bios", "dependencies/debug/x86_64_OVMF.fd"}) catch @panic("OOM");
         },
     }
 

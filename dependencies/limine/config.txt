@@ -1,5 +1,5 @@
 timeout: 0
 
-/SystemElva
+/Anthragon
     protocol: limine
     kernel_path: boot():/kernel
