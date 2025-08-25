@@ -1,12 +1,17 @@
-# Systemlumi Operating System Distribution
+# Anthragon Operating System Distribution
 
 
 ## Dependences:
 
+- Linux system
 - zig compiler 0.14.1
-- QEMU x86_64 system emulator
-- Linux
+- latest limine package
+- QEMU x86_64 system emulator (optional)
 
+
+## Quick setup:
+run `do.sh setup` for clonning all the submodules, if already
+not did.
 
 ## Build and Run:
 
