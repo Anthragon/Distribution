@@ -40,7 +40,7 @@ pub fn build(b: *std.Build) void {
     const disk_layout_temp = b.option(DiskLayout, "diskLayout", "Desired disk layout");
 
     // qemu options
-    const memory = b.option([]const u8, "memory", "How much memory the machine has") orelse "512M";
+    const memory = b.option([]const u8, "memory", "How much memory the machine has") orelse "128M";
     const use_gdb = b.option(bool, "useGDB", "use GDB for debugging") orelse false;
 
     if (target_bios == .uefi and disk_layout_temp == .MBR) @panic("MBR disk layout is not compatible with UEFI!");
