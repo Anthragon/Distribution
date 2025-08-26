@@ -224,14 +224,13 @@ fn install_bootloader(b: *std.Build, path: []const u8, arch: Arch, bios: BiosMod
 }
 fn install_kernel(b: *std.Build, path: []const u8, arch: Arch, bios: BiosMode, bldr: Bootloader) *Step {
 
-    _ = arch;
     _ = bios;
     _ = bldr;
 
     const install_path = std.fs.path.join(b.allocator, &.{ path, "/kernel" }) catch @panic("OOM");
     defer b.allocator.free(install_path);
 
-    const kernel_dep = b.dependency("kernel", .{});
+    const kernel_dep = b.dependency("kernel", .{ .tarch = arch });
     const kernel = kernel_dep.artifact("kernel");
     const kernel_install = b.addInstallFile(kernel.getEmittedBin(), install_path);
 
