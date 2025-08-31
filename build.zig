@@ -74,7 +74,8 @@ pub fn build(b: *std.Build) void {
 
         .MBR => {
             const disk_total_size = disk_boot_size + disk_main_size + 65;
-            var disk = imageBuilder.addBuildDiskImage(b, .MBR, disk_total_size, "Anthragon.img");
+            var disk = imageBuilder.addBuildDiskImage(b, .MBR, disk_total_size,
+            null, "Anthragon.img");
             disk.addGap(64); // limine bios-install needs this gap in MBR
             disk.addPartition(.vFAT, "boot", "zig-out/disk/boot", disk_boot_size);
             disk.addPartition(.vFAT, "main", "zig-out/disk/main", disk_main_size);
@@ -92,9 +93,13 @@ pub fn build(b: *std.Build) void {
 
         .GPT => {
             const total_size = disk_boot_size + disk_main_size + GPTr + 64;
-            var disk = imageBuilder.addBuildDiskImage(b, .GPT, total_size, "Anthragon.img");
-            disk.addPartition(.vFAT, "boot", "zig-out/disk/boot", disk_boot_size);
-            disk.addPartition(.vFAT, "main", "zig-out/disk/main", disk_main_size);
+            var disk = imageBuilder.addBuildDiskImage(b, .GPT, total_size,
+            "fadf1974-5373-4ac0-925a-7274169f1117", "Anthragon.img");
+
+            disk.addPartitionWithIdentifier(.vFAT, "boot", "zig-out/disk/boot", disk_boot_size,
+            "2da88725-18ea-4705-ab36-aad1be92e372");
+            disk.addPartitionWithIdentifier(.vFAT, "main", "zig-out/disk/main", disk_main_size,
+            "79f1091e-22ed-4be0-8863-a68536572252");
             disk.addPartition(.empty, "limine", "", 64);
 
             const bios_install = b.addSystemCommand(&.{
@@ -195,6 +200,7 @@ fn install_bootloader(b: *std.Build, path: []const u8, arch: Arch, bios: BiosMod
 
     var install_bootloader_step = addDummyStep(b, "Install Bootloader");
 
+    // limine files
     const bootloader = brk: switch (arch) {
         .aarch64 => {
             const dest = std.fs.path.join(alloc, &.{ path, "EFI/BOOT/BOOTAA64.EFI" }) catch @panic("OOM");
@@ -216,10 +222,18 @@ fn install_bootloader(b: *std.Build, path: []const u8, arch: Arch, bios: BiosMod
         break :brk b.addInstallFile(b.path("dependencies/limine/config.txt"), dest);
     };
 
+    // OS files
+    const kernel_config = brk: {
+        const dest = std.fs.path.join(alloc, &.{ path, "setup.toml" }) catch @panic("OOM");
+        break :brk b.addInstallFile(b.path("fs_config/setup.toml"), dest);
+    };
+
     install_bootloader_step.dependOn(&bootloader.step);
     install_bootloader_step.dependOn(&limine_bios.step);
     install_bootloader_step.dependOn(&limine_config.step);
 
+    install_bootloader_step.dependOn(&kernel_config.step);
+    
     return install_bootloader_step;
 }
 fn install_kernel(b: *std.Build, path: []const u8, arch: Arch, bios: BiosMode, bldr: Bootloader) *Step {
