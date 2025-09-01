@@ -250,7 +250,7 @@ fn install_kernel(b: *std.Build, path: []const u8, arch: Arch, bios: BiosMode, b
 
     return &kernel_install.step;
 }
-fn install_fs(b: *std.Build, path: []const u8, arch: Arch, bios: BiosMode, bldr: Bootloader) *Step {
+fn install_fs(b: *std.Build, comptime path: []const u8, arch: Arch, bios: BiosMode, bldr: Bootloader) *Step {
 
     _ = arch;
     _ = bios;
@@ -265,6 +265,9 @@ fn install_fs(b: *std.Build, path: []const u8, arch: Arch, bios: BiosMode, bldr:
     });
 
     install_fs_step.dependOn(&install_root.step);
+    install_fs_step.dependOn(addInstalDir(b, path ++ "/sys"));
+    install_fs_step.dependOn(addInstalDir(b, path ++ "bin"));
+    install_fs_step.dependOn(addInstalDir(b, path ++ "users"));
 
     return install_fs_step;
 }
@@ -277,4 +280,8 @@ fn addDummyStep(b: *Build, name: []const u8) *Step {
         .owner = b
     });
     return step;
+}
+fn addInstalDir(b: *Build, path: []const u8) *Step {
+    const dest = std.fs.path.join(b.allocator, &.{ b.install_path, path }) catch @panic("OOM");
+    return &b.addSystemCommand(&.{"mkdir", "-p", dest}).step;
 }
