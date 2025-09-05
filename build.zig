@@ -120,60 +120,61 @@ pub fn build(b: *std.Build) void {
 
     // Generate qemu args and run it
     const Rope = std.ArrayList([]const u8);
-    var qemu_args = Rope.init(b.allocator);
-    defer qemu_args.deinit();
+    var qemu_args: Rope = .empty;
+    const a = b.allocator;
+    defer qemu_args.deinit(a);
 
     switch (target_arch) {
         .aarch64 => {
-            qemu_args.append("qemu-system-aarch64") catch @panic("OOM");
+            qemu_args.append(a, "qemu-system-aarch64") catch @panic("OOM");
 
-            qemu_args.appendSlice(&.{"-cpu", "cortex-a57"}) catch @panic("OOM");
-            qemu_args.appendSlice(&.{"-machine", "virt"}) catch @panic("OOM");
+            qemu_args.appendSlice(a, &.{"-cpu", "cortex-a57"}) catch @panic("OOM");
+            qemu_args.appendSlice(a, &.{"-machine", "virt"}) catch @panic("OOM");
 
-            qemu_args.appendSlice(&.{"-device", "virtio-blk-device,drive=hd0,id=blk1"}) catch @panic("OOM");
-            qemu_args.appendSlice(&.{"-drive", "id=hd0,file=zig-out/Anthragon.img,format=raw,if=none"}) catch @panic("OOM");
+            qemu_args.appendSlice(a, &.{"-device", "virtio-blk-device,drive=hd0,id=blk1"}) catch @panic("OOM");
+            qemu_args.appendSlice(a, &.{"-drive", "id=hd0,file=zig-out/Anthragon.img,format=raw,if=none"}) catch @panic("OOM");
 
             // for UEFI emulation
-            if (target_bios == .uefi) qemu_args.appendSlice(&.{"-bios", "dependencies/debug/aarch64_OVMF.fd"}) catch @panic("OOM");
+            if (target_bios == .uefi) qemu_args.appendSlice(a, &.{"-bios", "dependencies/debug/aarch64_OVMF.fd"}) catch @panic("OOM");
 
             // as aarch64 don't have PS/2
-            qemu_args.appendSlice(&.{"-device", "qemu-xhci,id=usb"}) catch @panic("OOM");
-            qemu_args.appendSlice(&.{"-device", "usb-mouse"}) catch @panic("OOM");
-            qemu_args.appendSlice(&.{"-device", "usb-kbd"}) catch @panic("OOM");
+            qemu_args.appendSlice(a, &.{"-device", "qemu-xhci,id=usb"}) catch @panic("OOM");
+            qemu_args.appendSlice(a, &.{"-device", "usb-mouse"}) catch @panic("OOM");
+            qemu_args.appendSlice(a, &.{"-device", "usb-kbd"}) catch @panic("OOM");
             // as aarch64 don't have framebuffer
-            qemu_args.appendSlice(&.{"-device", "ramfb"}) catch @panic("OOM");
+            qemu_args.appendSlice(a, &.{"-device", "ramfb"}) catch @panic("OOM");
         },
         .x86_64 => {
-            qemu_args.append("qemu-system-x86_64") catch @panic("OOM");
+            qemu_args.append(a, "qemu-system-x86_64") catch @panic("OOM");
 
-            qemu_args.appendSlice(&.{"-machine", "q35"}) catch @panic("OOM");
+            qemu_args.appendSlice(a, &.{"-machine", "q35"}) catch @panic("OOM");
 
-            qemu_args.appendSlice(&.{"-device", "ahci,id=ahci"}) catch @panic("OOM");
-            qemu_args.appendSlice(&.{"-device", "ide-hd,drive=drive0,bus=ahci.0"}) catch @panic("OOM");
-            qemu_args.appendSlice(&.{"-drive", "id=drive0,file=zig-out/Anthragon.img,format=raw,if=none"}) catch @panic("OOM");
+            qemu_args.appendSlice(a, &.{"-device", "ahci,id=ahci"}) catch @panic("OOM");
+            qemu_args.appendSlice(a, &.{"-device", "ide-hd,drive=drive0,bus=ahci.0"}) catch @panic("OOM");
+            qemu_args.appendSlice(a, &.{"-drive", "id=drive0,file=zig-out/Anthragon.img,format=raw,if=none"}) catch @panic("OOM");
 
             // for UEFI emulation
-           if (target_bios == .uefi) qemu_args.appendSlice(&.{"-bios", "dependencies/debug/x86_64_OVMF.fd"}) catch @panic("OOM");
+           if (target_bios == .uefi) qemu_args.appendSlice(a, &.{"-bios", "dependencies/debug/x86_64_OVMF.fd"}) catch @panic("OOM");
         },
     }
 
     // general options
-    qemu_args.appendSlice(&.{"-m", memory}) catch @panic("OOM");
+    qemu_args.appendSlice(a, &.{"-m", memory}) catch @panic("OOM");
 
-    qemu_args.appendSlice(&.{"-serial", "file:zig-out/stdout.txt"}) catch @panic("OOM");
-    qemu_args.appendSlice(&.{"-serial", "file:zig-out/stderr.txt"}) catch @panic("OOM");
+    qemu_args.appendSlice(a, &.{"-serial", "file:zig-out/stdout.txt"}) catch @panic("OOM");
+    qemu_args.appendSlice(a, &.{"-serial", "file:zig-out/stderr.txt"}) catch @panic("OOM");
 
-    qemu_args.appendSlice(&.{"-monitor", "mon:stdio"}) catch @panic("OOM");
-    qemu_args.appendSlice(&.{"-display", "gtk,zoom-to-fit=on"}) catch @panic("OOM");
+    qemu_args.appendSlice(a, &.{"-monitor", "mon:stdio"}) catch @panic("OOM");
+    qemu_args.appendSlice(a, &.{"-display", "gtk,zoom-to-fit=on"}) catch @panic("OOM");
 
-    qemu_args.appendSlice(&.{"-D", "zig-out/log.txt"}) catch @panic("OOM");
-    qemu_args.appendSlice(&.{"-d", "int,mmu,fpu,cpu_reset,guest_errors,strace"}) catch @panic("OOM");
-    qemu_args.appendSlice(&.{"--no-reboot"}) catch @panic("OOM");
-    qemu_args.appendSlice(&.{"--no-shutdown"}) catch @panic("OOM");
-    //qemu_args.appendSlice(&.{"-trace", "*xhci*"}) catch @panic("OOM");
-    if (use_gdb) qemu_args.appendSlice(&.{"-s", "-S"}) catch @panic("OOM");
+    qemu_args.appendSlice(a, &.{"-D", "zig-out/log.txt"}) catch @panic("OOM");
+    qemu_args.appendSlice(a, &.{"-d", "int,mmu,fpu,cpu_reset,guest_errors,strace"}) catch @panic("OOM");
+    qemu_args.appendSlice(a, &.{"--no-reboot"}) catch @panic("OOM");
+    qemu_args.appendSlice(a, &.{"--no-shutdown"}) catch @panic("OOM");
+    //qemu_args.appendSlice(a, &.{"-trace", "*xhci*"}) catch @panic("OOM");
+    if (use_gdb) qemu_args.appendSlice(a, &.{"-s", "-S"}) catch @panic("OOM");
 
-    qemu_args.appendSlice(&.{"-qmp", "unix:qmp.socket,server,nowait"}) catch @panic("OOM");
+    qemu_args.appendSlice(a, &.{"-qmp", "unix:qmp.socket,server,nowait"}) catch @panic("OOM");
 
     const run_qemu = b.addSystemCommand(qemu_args.items);
     const after_run = b.addSystemCommand(&.{"bash", "afterrun.sh"});
