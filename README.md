@@ -4,7 +4,7 @@
 ## Dependences:
 
 - Linux system
-- zig compiler 0.14.1
+- zig compiler 0.15.1
 - latest limine package
 - QEMU x86_64 system emulator (optional)
 
