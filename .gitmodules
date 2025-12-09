@@ -11,6 +11,6 @@
 	path = dependencies/image-builder
 	url = git@github.com:lumi2021/image-builder.git
 	
-[submodule "System"]
-	path = System
+[submodule "system"]
+	path = system
 	url = git@github.com:Anthragon/System.git
