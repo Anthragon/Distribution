@@ -6,7 +6,6 @@ DISTRIBUTION_FOLDER=$(pwd)
 case $1 in
     "setup")
         git submodule update --init --recursive
-
         ;;
 
     "b" | "build")

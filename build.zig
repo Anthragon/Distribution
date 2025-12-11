@@ -31,6 +31,8 @@ pub fn build(b: *std.Build) void {
 
     // qemu options
     const memory = b.option([]const u8, "memory", "How much memory the machine has") orelse "128M";
+    const cores = b.option(u8, "cores", "How much CPU cores the machine has") orelse 2;
+
     const use_gdb = b.option(bool, "useGDB", "use GDB for debugging") orelse false;
 
     // runtime configuration options
@@ -145,6 +147,7 @@ pub fn build(b: *std.Build) void {
     }
 
     // general options
+    qemu_args.appendSlice(a, &.{ "-smp", std.fmt.allocPrint(b.allocator, "{}", .{cores}) catch unreachable }) catch @panic("OOM");
     qemu_args.appendSlice(a, &.{ "-m", memory }) catch @panic("OOM");
 
     qemu_args.appendSlice(a, &.{ "-serial", "file:zig-out/stdout.txt" }) catch @panic("OOM");
