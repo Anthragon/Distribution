@@ -94,7 +94,13 @@ pub fn build(b: *std.Build) void {
             disk.addPartitionWithIdentifier(.vFAT, "main", "zig-out/disk/main", disk_main_size, "79f1091e-22ed-4be0-8863-a68536572252");
             disk.addPartition(.empty, "limine", "", 64);
 
-            const bios_install = b.addSystemCommand(&.{ if (builtin.os.tag == .windows) "limine.exe" else "limine", "bios-install", "zig-out/Anthragon.img", "3" });
+            const bios_install = b.addSystemCommand(&.{
+                if (builtin.os.tag == .windows) "limine.exe" else "limine",
+                "bios-install",
+                "zig-out/Anthragon.img",
+                "3",
+                "--force",
+            });
 
             bios_install.step.dependOn(&disk.step);
             install_disk.dependOn(&bios_install.step);
