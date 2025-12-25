@@ -310,6 +310,11 @@ fn install_fs(
             w.print("uuid = '{s}'\n", .{i.guid}) catch unreachable;
             w.print("perm = '{s}'\n", .{i.perm}) catch unreachable;
             w.writeByte('\n') catch unreachable;
+
+            install_fs_step.dependOn(addInstalDir(b, std.fmt.allocPrint(b.allocator, "{s}/users/{s}/.config", .{ path, i.name }) catch unreachable));
+            install_fs_step.dependOn(addInstalDir(b, std.fmt.allocPrint(b.allocator, "{s}/users/{s}/.local", .{ path, i.name }) catch unreachable));
+            install_fs_step.dependOn(addInstalDir(b, std.fmt.allocPrint(b.allocator, "{s}/users/{s}/downloads", .{ path, i.name }) catch unreachable));
+            install_fs_step.dependOn(addInstalDir(b, std.fmt.allocPrint(b.allocator, "{s}/users/{s}/documents", .{ path, i.name }) catch unreachable));
         }
 
         users.deinit(b.allocator);
