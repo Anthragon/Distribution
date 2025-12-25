@@ -6,7 +6,8 @@
     .minimum_zig_version = "0.15.1",
 
     .dependencies = .{
-        .kernel = .{ .path = "kernel" }
+        .kernel = .{ .path = "kernel" },
+        .apps = .{ .path = "programs" },
     },
 
     .paths = .{
@@ -19,7 +20,7 @@
         "afterrun.sh",
 
         "LICENSE",
-         "README.md",
+        "README.md",
         ".gitignore",
     },
 }

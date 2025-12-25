@@ -63,6 +63,9 @@ pub fn build(b: *std.Build) void {
         systemUsers,
     );
 
+    // apps
+    const apps_step = install_apps(b, "disk/main/bin");
+
     // generate disk image
     const install_disk = addDummyStep(b, "Install Disk Image");
     var disk_step: *Build.Step = undefined;
@@ -111,6 +114,7 @@ pub fn build(b: *std.Build) void {
     disk_step.dependOn(bootloader_step);
     disk_step.dependOn(kernel_step);
     disk_step.dependOn(fs_step);
+    disk_step.dependOn(apps_step);
 
     // Generate qemu args and run it
     const Rope = std.ArrayList([]const u8);
@@ -322,6 +326,25 @@ fn install_fs(
     }
 
     return install_fs_step;
+}
+fn install_apps(
+    b: *std.Build,
+    comptime path: []const u8,
+) *Step {
+    const install_apps_step = addDummyStep(b, "Install Applications");
+    const apps = b.dependency("apps", .{});
+
+    const artifacts = [_]*Step.Compile{
+        apps.artifact("helloworld"),
+    };
+
+    for (artifacts) |i| {
+        const newpath = std.fmt.allocPrint(b.allocator, "{s}/{s}", .{ path, i.name }) catch @panic("OOM");
+        const app_install = b.addInstallFile(i.getEmittedBin(), newpath);
+        install_apps_step.dependOn(&app_install.step);
+    }
+
+    return install_apps_step;
 }
 
 fn addDummyStep(b: *Build, name: []const u8) *Step {
