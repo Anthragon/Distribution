@@ -8,6 +8,8 @@
     .dependencies = .{
         .kernel = .{ .path = "kernel" },
         .apps = .{ .path = "programs" },
+
+        .module_linkageTest = .{ .path = "modules/linkageTest" },
     },
 
     .paths = .{

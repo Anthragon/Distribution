@@ -251,13 +251,29 @@ fn install_kernel(
     _ = bios;
     _ = bldr;
 
-    const install_path = std.fs.path.join(b.allocator, &.{ path, "/kernel" }) catch @panic("OOM");
-    defer b.allocator.free(install_path);
+    const link_script = switch (arch) {
+        .x86_64 => b.path("linkage/x86_64.ld"),
+        .aarch64 => b.path("linkage/aarch64.ld"),
+        else => unreachable,
+    };
 
-    const kernel_dep = b.dependency("kernel", .{ .tarch = arch });
-    const kernel = kernel_dep.artifact("kernel");
-    const kernel_install = b.addInstallFile(kernel.getEmittedBin(), install_path);
+    const kernel_module = b.dependency("kernel", .{ .tarch = arch }).module("kernel");
+    const kernel_exe = b.addExecutable(.{
+        .name = "kernel",
+        .root_module = kernel_module,
+        .use_llvm = true,
+    });
+    kernel_exe.entry = .{ .symbol_name = "__boot_entry__" };
+    kernel_exe.setLinkerScript(link_script);
 
+    const linkagetest_obj = b.addObject(.{
+        .name = "linkagetest",
+        .root_module = b.dependency("module_linkageTest", .{}).module("linkageTest"),
+    });
+
+    kernel_exe.addObject(linkagetest_obj);
+
+    const kernel_install = b.addInstallArtifact(kernel_exe, .{ .dest_dir = .{ .override = .{ .custom = path } } });
     return &kernel_install.step;
 }
 fn install_fs(
