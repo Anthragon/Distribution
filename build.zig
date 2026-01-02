@@ -266,12 +266,12 @@ fn install_kernel(
     kernel_exe.entry = .{ .symbol_name = "__boot_entry__" };
     kernel_exe.setLinkerScript(link_script);
 
-    const linkagetest_obj = b.addObject(.{
+    const lumiAHCI_obj = b.addObject(.{
         .name = "linkagetest",
-        .root_module = b.dependency("module_linkageTest", .{}).module("linkageTest"),
+        .root_module = b.dependency("module_lumiAHCI", .{}).module("lumiAHCI"),
     });
 
-    kernel_exe.addObject(linkagetest_obj);
+    kernel_exe.addObject(lumiAHCI_obj);
 
     const kernel_install = b.addInstallArtifact(kernel_exe, .{ .dest_dir = .{ .override = .{ .custom = path } } });
     return &kernel_install.step;

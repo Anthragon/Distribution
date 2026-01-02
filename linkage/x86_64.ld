@@ -12,6 +12,13 @@ SECTIONS {
         *(.text*)
     }
 
+    .text.userland : ALIGN(4K)
+    {
+        __kernel_text_userland_start__ = .;
+        KEEP(*(.text.userland*))
+        __kernel_text_userland_end__ = .;
+    }
+
     .rodata : ALIGN(4K) {
         *(.rodata*)
         *(.lrodata*)
@@ -25,21 +32,17 @@ SECTIONS {
     .bss : ALIGN(4K) {
         *(.bss*)
         *(.lbss*)
+        *(.tbss*)
         *(COMMON)
 
         . = ALIGN(16);
         . += KERNEL_STACK_SIZE;
     }
 
-    .tbss : ALIGN(4K) {
-        *(.tbss*)
-    }
-
     .kernel_modules : ALIGN(8)
     {
         __kernel_modules_start__ = .;
         KEEP(*(.kernel_modules*))
-        KEEP(*(.kernel_modules.*))
         __kernel_modules_end__ = .;
     }
 
