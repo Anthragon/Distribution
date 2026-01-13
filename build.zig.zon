@@ -9,7 +9,7 @@
         .kernel = .{ .path = "kernel" },
         .apps = .{ .path = "programs" },
 
-        .module_lumiAHCI = .{ .path = "modules/lumiAHCI" },
+        .module_lumiPCI = .{ .path = "modules/lumiPCI" },
     },
 
     .paths = .{

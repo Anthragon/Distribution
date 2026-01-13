@@ -39,7 +39,7 @@ SECTIONS {
         . += KERNEL_STACK_SIZE;
     }
 
-    .kernel_modules : ALIGN(8)
+    .kernel_modules : ALIGN(4k)
     {
         __kernel_modules_start__ = .;
         KEEP(*(.kernel_modules*))

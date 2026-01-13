@@ -6,11 +6,15 @@
 	path = modules
 	url = git@github.com:Anthragon/Modules.git
 
+[submodule "system"]
+	path = system
+	url = git@github.com:Anthragon/System.git
+
+[submodule "programs"]
+	path = programs
+	url = git@github.com:Anthragon/Programs.git
+
 
 [submodule "dependencies/image-builder"]
 	path = dependencies/image-builder
 	url = git@github.com:lumi2021/image-builder.git
-	
-[submodule "system"]
-	path = system
-	url = git@github.com:Anthragon/System.git

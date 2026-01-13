@@ -147,9 +147,9 @@ pub fn build(b: *std.Build) void {
 
             qemu_args.appendSlice(a, &.{ "-machine", "q35" }) catch @panic("OOM");
 
-            qemu_args.appendSlice(a, &.{ "-device", "ahci,id=ahci" }) catch @panic("OOM");
-            qemu_args.appendSlice(a, &.{ "-device", "ide-hd,drive=drive0,bus=ahci.0" }) catch @panic("OOM");
-            qemu_args.appendSlice(a, &.{ "-drive", "id=drive0,file=zig-out/Anthragon.img,format=raw,if=none" }) catch @panic("OOM");
+            //qemu_args.appendSlice(a, &.{ "-device", "ahci,id=ahci" }) catch @panic("OOM");
+            //qemu_args.appendSlice(a, &.{ "-device", "ide-hd,drive=drive0,bus=ahci.0" }) catch @panic("OOM");
+            qemu_args.appendSlice(a, &.{ "-drive", "id=drive0,file=zig-out/Anthragon.img,format=raw,if=ide" }) catch @panic("OOM");
 
             // for UEFI emulation
             if (target_bios == .uefi) qemu_args.appendSlice(a, &.{ "-bios", "dependencies/debug/x86_64_OVMF.fd" }) catch @panic("OOM");
@@ -266,12 +266,12 @@ fn install_kernel(
     kernel_exe.entry = .{ .symbol_name = "__boot_entry__" };
     kernel_exe.setLinkerScript(link_script);
 
-    const lumiAHCI_obj = b.addObject(.{
-        .name = "linkagetest",
-        .root_module = b.dependency("module_lumiAHCI", .{}).module("lumiAHCI"),
+    const lumiPCI_obj = b.addObject(.{
+        .name = "lumiPCI",
+        .root_module = b.dependency("module_lumiPCI", .{}).module("lumiPCI"),
+        .use_llvm = true,
     });
-
-    kernel_exe.addObject(lumiAHCI_obj);
+    kernel_exe.addObject(lumiPCI_obj);
 
     const kernel_install = b.addInstallArtifact(kernel_exe, .{ .dest_dir = .{ .override = .{ .custom = path } } });
     return &kernel_install.step;
