@@ -268,7 +268,7 @@ fn install_kernel(
 
     const lumiPCI_obj = b.addObject(.{
         .name = "lumiPCI",
-        .root_module = b.dependency("module_lumiPCI", .{}).module("lumiPCI"),
+        .root_module = b.dependency("module_lumiPCI", .{ .tarch = arch, .builtin = true }).module("lumiPCI"),
         .use_llvm = true,
     });
     kernel_exe.addObject(lumiPCI_obj);
