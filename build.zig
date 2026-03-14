@@ -145,7 +145,7 @@ pub fn build(b: *std.Build) void {
         .x86_64 => {
             qemu_args.append(a, "qemu-system-x86_64") catch @panic("OOM");
 
-            qemu_args.appendSlice(a, &.{ "-machine", "q35" }) catch @panic("OOM");
+            qemu_args.appendSlice(a, &.{ "-machine", "pc" }) catch @panic("OOM");
 
             //qemu_args.appendSlice(a, &.{ "-device", "ahci,id=ahci" }) catch @panic("OOM");
             //qemu_args.appendSlice(a, &.{ "-device", "ide-hd,drive=drive0,bus=ahci.0" }) catch @panic("OOM");
@@ -272,6 +272,13 @@ fn install_kernel(
         .use_llvm = true,
     });
     kernel_exe.addObject(lumiPCI_obj);
+
+    const lumiATA_obj = b.addObject(.{
+        .name = "lumiATA",
+        .root_module = b.dependency("module_lumiATA", .{ .tarch = arch, .builtin = true }).module("lumiATA"),
+        .use_llvm = true,
+    });
+    kernel_exe.addObject(lumiATA_obj);
 
     const kernel_install = b.addInstallArtifact(kernel_exe, .{ .dest_dir = .{ .override = .{ .custom = path } } });
     return &kernel_install.step;

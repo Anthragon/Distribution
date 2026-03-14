@@ -10,6 +10,7 @@
         .apps = .{ .path = "programs" },
 
         .module_lumiPCI = .{ .path = "modules/lumiPCI" },
+        .module_lumiATA = .{ .path = "modules/lumiATA" },
     },
 
     .paths = .{

@@ -12,13 +12,6 @@ SECTIONS {
         *(.text*)
     }
 
-    .text.userland : ALIGN(4K)
-    {
-        __kernel_text_userland_start__ = .;
-        KEEP(*(.text.userland*))
-        __kernel_text_userland_end__ = .;
-    }
-
     .rodata : ALIGN(4K) {
         *(.rodata*)
         *(.lrodata*)
@@ -38,6 +31,35 @@ SECTIONS {
         . = ALIGN(16);
         . += KERNEL_STACK_SIZE;
     }
+
+
+    __kernel_userland_start = .;
+    .text.userland : ALIGN(4K)
+    {
+        KEEP(*(.text.userland*))
+    }
+
+    .rodata : ALIGN(4K) {
+        *(.rodata.userland*)
+        *(.lrodata.userland*)
+    }
+
+    .data : ALIGN(4K) {
+        *(.data.userland*)
+        *(.ldata.userland*)
+    }
+
+    .bss : ALIGN(4K) {
+        *(.bss.userland*)
+        *(.lbss.userland*)
+        *(.tbss.userland*)
+        *(COMMON.userland)
+
+        . = ALIGN(16);
+        . += KERNEL_STACK_SIZE;
+    }
+    __kernel_userland_end = .;
+
 
     .kernel_modules : ALIGN(4k)
     {
