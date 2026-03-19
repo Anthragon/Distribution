@@ -266,19 +266,21 @@ fn install_kernel(
     kernel_exe.entry = .{ .symbol_name = "__boot_entry__" };
     kernel_exe.setLinkerScript(link_script);
 
-    const lumiPCI_obj = b.addObject(.{
-        .name = "lumiPCI",
-        .root_module = b.dependency("module_lumiPCI", .{ .tarch = arch, .builtin = true }).module("lumiPCI"),
-        .use_llvm = true,
-    });
-    kernel_exe.addObject(lumiPCI_obj);
+    if (arch.isX86()) {
+        const lumiPCI_obj = b.addObject(.{
+            .name = "lumiPCI",
+            .root_module = b.dependency("module_lumiPCI", .{ .tarch = arch, .builtin = true }).module("lumiPCI"),
+            .use_llvm = true,
+        });
+        kernel_exe.addObject(lumiPCI_obj);
 
-    const lumiATA_obj = b.addObject(.{
-        .name = "lumiATA",
-        .root_module = b.dependency("module_lumiATA", .{ .tarch = arch, .builtin = true }).module("lumiATA"),
-        .use_llvm = true,
-    });
-    kernel_exe.addObject(lumiATA_obj);
+        const lumiATA_obj = b.addObject(.{
+            .name = "lumiATA",
+            .root_module = b.dependency("module_lumiATA", .{ .tarch = arch, .builtin = true }).module("lumiATA"),
+            .use_llvm = true,
+        });
+        kernel_exe.addObject(lumiATA_obj);
+    }
 
     const kernel_install = b.addInstallArtifact(kernel_exe, .{ .dest_dir = .{ .override = .{ .custom = path } } });
     return &kernel_install.step;
