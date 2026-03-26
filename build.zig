@@ -282,6 +282,13 @@ fn install_kernel(
         kernel_exe.addObject(lumiATA_obj);
     }
 
+    const lumiDisk_obj = b.addObject(.{
+        .name = "lumiDisk",
+        .root_module = b.dependency("module_lumiDisk", .{ .tarch = arch, .builtin = true }).module("lumiDisk"),
+        .use_llvm = true,
+    });
+    kernel_exe.addObject(lumiDisk_obj);
+
     const kernel_install = b.addInstallArtifact(kernel_exe, .{ .dest_dir = .{ .override = .{ .custom = path } } });
     return &kernel_install.step;
 }
