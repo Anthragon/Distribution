@@ -284,7 +284,10 @@ fn install_kernel(
 
     const lumiDisk_obj = b.addObject(.{
         .name = "lumiDisk",
-        .root_module = b.dependency("module_lumiDisk", .{ .tarch = arch, .builtin = true }).module("lumiDisk"),
+        .root_module = b.dependency("module_lumiDisk", .{
+            .tarch = arch,
+            .builtin = true,
+        }).module("lumiDisk"),
         .use_llvm = true,
     });
     kernel_exe.addObject(lumiDisk_obj);
