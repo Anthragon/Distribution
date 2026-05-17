@@ -74,6 +74,8 @@ pub fn build(b: *std.Build) void {
     const disk_boot_size = 5 * MiB;
     const disk_main_size = 5 * MiB;
 
+    const limine_exe = if (builtin.os.tag == .windows) "dependencies/limine/limine.exe" else "dependencies/limine/limine";
+
     switch (disk_layout) {
         .MBR => {
             const disk_total_size = disk_boot_size + disk_main_size + 65;
@@ -82,7 +84,11 @@ pub fn build(b: *std.Build) void {
             disk.addPartition(.vFAT, "boot", "zig-out/disk/boot", disk_boot_size);
             disk.addPartition(.vFAT, "main", "zig-out/disk/main", disk_main_size);
 
-            const bios_install = b.addSystemCommand(&.{ if (builtin.os.tag == .windows) "limine.exe" else "limine", "bios-install", "zig-out/Anthragon.img" });
+            const bios_install = b.addSystemCommand(&.{
+                limine_exe,
+                "bios-install",
+                "zig-out/Anthragon.img",
+            });
 
             bios_install.step.dependOn(&disk.step);
             install_disk.dependOn(&bios_install.step);
@@ -95,18 +101,8 @@ pub fn build(b: *std.Build) void {
 
             disk.addPartitionWithIdentifier(.vFAT, "boot", "zig-out/disk/boot", disk_boot_size, "2da88725-18ea-4705-ab36-aad1be92e372");
             disk.addPartitionWithIdentifier(.vFAT, "main", "zig-out/disk/main", disk_main_size, "79f1091e-22ed-4be0-8863-a68536572252");
-            disk.addPartition(.empty, "limine", "", 64);
 
-            const bios_install = b.addSystemCommand(&.{
-                if (builtin.os.tag == .windows) "limine.exe" else "limine",
-                "bios-install",
-                "zig-out/Anthragon.img",
-                "3",
-                "--force",
-            });
-
-            bios_install.step.dependOn(&disk.step);
-            install_disk.dependOn(&bios_install.step);
+            install_disk.dependOn(&disk.step);
             disk_step = &disk.step;
         },
     }
