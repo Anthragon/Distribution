@@ -96,7 +96,7 @@ pub fn build(b: *std.Build) void {
         },
 
         .GPT => {
-            const total_size = disk_boot_size + disk_main_size + GPTr + 64;
+            const total_size = disk_boot_size + disk_main_size + GPTr;
             var disk = imageBuilder.addBuildDiskImage(b, .GPT, total_size, "fadf1974-5373-4ac0-925a-7274169f1117", "Anthragon.img");
 
             disk.addPartitionWithIdentifier(.vFAT, "boot", "zig-out/disk/boot", disk_boot_size, "2da88725-18ea-4705-ab36-aad1be92e372");

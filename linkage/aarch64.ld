@@ -1,7 +1,7 @@
 OUTPUT_FORMAT(elf64-littleaarch64)
 
 KERNEL_VIRT_START = 0xffffffff80000000;
-KERNEL_STACK_SIZE = 0x4000;
+KERNEL_STACK_SIZE = 0x20000;
 
 PHDRS
 {
@@ -19,51 +19,55 @@ SECTIONS {
 
     .text : ALIGN(4K) {
         *(.text*)
-    }
+    } :text
 
     .rodata : ALIGN(4K) {
         *(.rodata*)
         *(.lrodata*)
-    }
+    } :rodata
 
     .data : ALIGN(4K) {
         *(.data*)
         *(.ldata*)
-    }
+    } :data
+    .got : ALIGN(4K) {
+        *(.got*)
+    } :data
     .bss : ALIGN(4K) {
         *(.bss*)
         *(.lbss*)
         *(.tbss*)
         *(COMMON)
 
-        . = ALIGN(16);
+        . = ALIGN(0x1000);
+        __kernel_stack_bottom__ = .;
         . += KERNEL_STACK_SIZE;
-    }
+        __kernel_stack_top__ = .;
+    } :data
 
     __kernel_userland_start = .;
-    .text.userland : ALIGN(4K) {
-        KEEP(*(.text.userland*))
-    }
 
-    .rodata.userland : ALIGN(4K) {
-        *(.rodata.userland*)
-        *(.lrodata.userland*)
-    }
+        .text.userland : ALIGN(4K) {
+            KEEP(*(.text.userland*))
+        } : text
 
-    .data.userland : ALIGN(4K) {
-        *(.data.userland*)
-        *(.ldata.userland*)
-    }
+        .rodata.userland : ALIGN(4K) {
+            *(.rodata.userland*)
+            *(.lrodata.userland*)
+        } : rodata
 
-    .bss.userland : ALIGN(4K) {
-        *(.bss.userland*)
-        *(.lbss.userland*)
-        *(.tbss.userland*)
-        *(COMMON.userland)
+        .data.userland : ALIGN(4K) {
+            *(.data.userland*)
+            *(.ldata.userland*)
+        } :data
 
-        . = ALIGN(16);
-        . += KERNEL_STACK_SIZE;
-    }
+        .bss.userland : ALIGN(4K) {
+            *(.bss.userland*)
+            *(.lbss.userland*)
+            *(.tbss.userland*)
+            *(COMMON.userland)
+        } :data
+
     __kernel_userland_end = .;
 
     .kernel_modules : ALIGN(4K) {
