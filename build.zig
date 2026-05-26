@@ -71,8 +71,8 @@ pub fn build(b: *std.Build) void {
     var disk_step: *Build.Step = undefined;
 
     // TODO put these in option flags
-    const disk_boot_size = 5 * MiB;
-    const disk_main_size = 5 * MiB;
+    const disk_boot_size = 10 * MiB;
+    const disk_main_size = 10 * MiB;
 
     const limine_exe = if (builtin.os.tag == .windows) "dependencies/limine/limine.exe" else "dependencies/limine/limine";
 
