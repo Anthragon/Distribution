@@ -16,6 +16,8 @@ const BiosMode = enum { bios, uefi };
 const DiskLayout = enum { MBR, GPT };
 const Bootloader = enum { limine };
 
+var config: *Build.Module = undefined;
+
 pub fn build(b: *std.Build) void {
     b.exe_dir = "zig-out/";
 
@@ -48,6 +50,9 @@ pub fn build(b: *std.Build) void {
         .bios => .MBR,
         .uefi => .GPT,
     };
+
+    // load configuration
+    config = b.addModule("build_config", .{ .root_source_file = b.path("config.zig") });
 
     // boot partition
     const bootloader_step = install_bootloader(b, "disk/boot/", arch, target_bios, target_bldr);
@@ -254,6 +259,7 @@ fn install_kernel(
     };
 
     const kernel_module = b.dependency("kernel", .{ .tarch = arch }).module("kernel");
+    kernel_module.addImport("config", config);
     const kernel_exe = b.addExecutable(.{
         .name = "kernel",
         .root_module = kernel_module,
@@ -287,6 +293,16 @@ fn install_kernel(
         .use_llvm = true,
     });
     kernel_exe.addObject(lumiDisk_obj);
+
+    const lumiFAT_obj = b.addObject(.{
+        .name = "lumiFAT",
+        .root_module = b.dependency("module_lumiFAT", .{
+            .tarch = arch,
+            .builtin = true,
+        }).module("lumiFAT"),
+        .use_llvm = true,
+    });
+    kernel_exe.addObject(lumiFAT_obj);
 
     const kernel_install = b.addInstallArtifact(kernel_exe, .{ .dest_dir = .{ .override = .{ .custom = path } } });
     return &kernel_install.step;

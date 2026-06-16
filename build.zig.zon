@@ -12,6 +12,7 @@
         .module_lumiPCI = .{ .path = "modules/lumiPCI" },
         .module_lumiATA = .{ .path = "modules/lumiATA" },
         .module_lumiDisk = .{ .path = "modules/lumiDisk" },
+        .module_lumiFAT = .{ .path = "modules/lumiFAT" },
     },
 
     .paths = .{
